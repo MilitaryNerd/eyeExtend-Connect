@@ -1,46 +1,110 @@
-# eyeExtend-Connect
-Easily build, consume and share apps to integrate with the Forescout platform. Terms of use apply please see attached link.
+ 
+Forescout eyeExtend Connect Cherwell App README.md
+ 
+## About the eyeExtend Connect Cherwell App
+The Cherwell Connect App gathers and shares endpoint information with the Cherwell CMDB which enables the management of assets. With a bi-directional synchronization of the data Forescout is then able to create IT Incidents that will have the appropriate configuration item (CI)linked to the record to ensure end-to-end tracking.  
 
-## Apps
-Each integration app has been posted with a .eca file and folder of the content of the App. Use the .eca file to run the app in your Forescout enviorment. The App folder also contains the source-code of the integration App. 
-Details on the App content and how to build and App can be found here. 
-* [Training Videos](https://www.youtube.com/playlist?list=PL2HYJud3zBqcjUoiJzVG33_ubuRqv3crQ)
-* [App Build Guide](https://github.com/Forescout/eyeExtend-Connect/blob/master/eyeExtend%20Connect%20App%20Building%20Guide.pdf)
-* [Tools](https://github.com/fs-connect) - App creation tools to simplify aspects of the app building process
+## Support Requirements
+- Cherwell
+- Forescout CounterACT 8.2
+- Forescout eyeExtend Connect 1.1
 
-## App Submission Process
-1.	Build your app and ensure it installs and behaves as expected on the latest version of Connect
-2.	Create a README.md file for your app, or update the existing app README.
-3.	Email a download link to connect-app-submission@forescout.com. In your email, please include the following information:
-    - The README.md file containing information about configuration, app use cases, required permissions, and any other information required to use the app.
-    - A download link for the zip file.
-    - If applicable, a request to release the app privately, rather than displaying it on the Forescout EyeExtend-Connect GitHub page.
-  5.	Once connect-app-submission has the zip file, allow 3-5 days for analysis and signing. If there are any issues with the app, a Forescout Engineer will contact you to make the appropriate changes.
+## Features and updates with v1.0.0 Cherwell App
+This version adds supports for:
 
-## README file for App
-Each app should have its own README.md file (.md format only). It should follow the README.md in GlobalProtect app, containing at least these 3 sections on the top:
+* Real-time endpoint update to the Cherwell CMDB through the use of a staging table
+* Device Discovery - enables periodic polling to discover new clients via Cherwell CMDB entries
+* Provides for the ability to submit an IT Incident with the CMDB CI associated
 
-#### Contact Information
-Forescout Technologies, Inc. 190 West Tasman Drive San Jose, CA 95134 USA https://www.Forescout.com/support/ Toll-Free (US): 1.866.377.8771 Tel (Intl): 1.408.213.3191 Support: 1.708.237.6591
+## Versions
+* 1.0.0 - Base release
+* 1.0.2 - Bug fixes with error reporting and enhanced debugging
 
-#### About the Documentation
-Refer to the Technical Documentation page on the Forescout website for additional documentation: https://www.Forescout.com/company/technical-documentation/
-Have feedback or questions? Write to us at documentation@forescout.com
+### Required Cherwell Updates
+* Addition of a Forescout field to make a link between Forescout device and CMDB device. (This needs to be manually added to Configuration Item)
+* mApp for Cherwell provides for the Forescout Import Table and is needed in order to complete the integration
+* Cherwell One-Step(s) will need to be created to move the data from the Forescout Import Table to the CMDB production tables as well as update existing CI records
 
-#### Legal Notice
-© 2020 Forescout Technologies, Inc. All rights reserved. Forescout Technologies, Inc. is a Delaware corporation. A list of our trademarks and patents can be found at https://www.Forescout.com/company/legal/intellectual-property-patents-trademarks. Other brands, products, or service names may be trademarks or service marks of their respective owners.
+### Rate-limited API Count
+* User can set rate-limiter for the API allowed to the Cherwell per unit time.
+* Default in the App is allowing up to 100 API calls per second.
+* Range is 1 to 1000 APIs.
 
-## App Support
+### Test button
+* Test is enabled by default.
+* Checks for Cherwell working connection and pulls Business Object ID for the CMDB tables.
 
-All eyeExtend Connect Apps posted here are community contributed and community supported. These Apps are not supported by the Forescout Customer Support team. If you have questions or are in need of support please reach out to our growing community of over 300 people at the following resources:
+### Policy Templates
+There are three default Cherwell Template policies:
 
-* https://forescout.force.com/support/s/ - Please post your questions in the Discussion Thread
-* https://app.slack.com/client/TCG0HGFUG/CCGSRQDCZ  - User run Forescout Community ‘Connect-OIM’ Channel
+1. Add asset to the CMDB which adds the device to the Forescout Import Table to be processed by the client-created One-Step
+2. Update asset in the CMDB which will push the device information to the Forescout Import Table, including the Cherwell CMDB record ID, to then be processed by a client-created One-Step
+3. Creation of an IT Incident Record with the CI display name and record ID to link the incident to the CI. It may be necessary to extend capabilities in a One-Step in order to complete the linking of the two records.
+
+### Actions
+* Add an Asset to the Cherwell CMDB
+* Update an Asset in the Cherwell CMDB
+* Create an IT Incident in the Cherwell CMDB
+
+### Installation & Configuration Steps (Basic)
+* Install and license eyeExtend Connect
+* Download Cherwell archive (will include source python scripts, .eca file and files with extension of .mAppz and .mAppBP).
+* Install Cherwell application .eca file downloaded from Github
+* In Cherwell Administrator application, click mApps and Apply an mApp. 
+
+![](README.assets/Picture1.jpg)
+
+* Locate the .mAppz file.
+* Follow the prompts of the wizard, accepting defaults and Attempt to publish the changes directly. (you’ll note the changes do not include a One Step, which is needed to get the configuration items into the destination class tables)
+
+![](README.assets/Picture2.jpg)
+
+* Click on Security and Edit Users and create a new user and save.
+* Click on Edit REST API Client settings, make note of the Client Key and the API URL.
+* Back in the Forescout eyeSight Console, click Tools/Options/Connect, then on the Cherwell Application, click Add.
+* Enter a name and the URL from the Cherwell Administrator application from Step 7. On the Cherwell Account Information “tab”, paste the API URL into the Client key field and enter the user credentials you created in Step 7.
+* Now, launch the Cherwell Service Management application.
+* One Step is how Cherwell will extract the records out of the Forescout Import Table, transform them as needed and create or update records in the CMDB Class Tables (see listing of tables below)
+
+	![](README.assets/Picture3.jpg)
+
+* After logging in, select One Step, then One Step Manager.
+
+![](README.assets/Picture4.jpg)
+
+* Change the association to Forescout Import Table.
+
+![](README.assets/Picture5.jpg)
+
+* Select + and give it a name. 
+
+![](README.assets/Picture6.jpg)
+
+* Drag into the plus sign “Create a new Business Object”
+
+![](README.assets/Picture7.jpg)
+
+* Change the drop down to be the desired Config table.
+
+![](README.assets/Picture8.jpg)
+
+* Then click Fields and select each of the mandatory fields (with yellow ! triangle) and other fields you want to populate with data from Forescout.
+
+![](README.assets/Picture9.jpg)
+
+* If you want to select Template (pulling data from Forescout) vs a static entry, click the radio button for Template and then right click in the box and it’ll pull the available fields from Forescout. 
+
+![](README.assets/Picture10.jpg)
+
+* After saving your One Step, you need to schedule it. Now open the Cherwell Administrator application and click Scheduling. Then Add.
+
+![](README.assets/Picture11.jpg)
+
+* Select One Step as the Action and then in the drop down, choose your specific One Step.
+
+![](README.assets/Picture12.jpg)
 
 
-## Connect Plugin
-You must have the Connect plugin installed on your Forescout platform to run these apps. 
 
-## Deploying an App
-Under the 'Options' select the 'Connect' panel to access the settings. Use the 'Import' button to upload the App's .eca file. Follow the configuraiton requirements per the App to deploy the integration.
+
 
